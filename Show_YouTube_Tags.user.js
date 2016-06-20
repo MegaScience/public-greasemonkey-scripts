@@ -14,13 +14,9 @@ var information = {
 
 function appendTags() {
 	var checkReturn = errorCheckTags();
-	//if(errorCheckTags() > 0) return;
 	if(typeof checkReturn === 'number') return;
-	//var listObj = document.getElementsByClassName('watch-extras-section')[0];
-	//var tags = ytplayer.config.args.keywords.replace(/,/g, ', ') || "-";
-	var tags = checkReturn.keywords.replace(/,/g, ", ") || "-";
-	//var li = listObj.children[listObj.children.length - 1].cloneNode(true);
-	var li = checkReturn.meta.cloneNode(true);
+	var tags = checkReturn.keywords.replace(",", ", ") || "-",
+		li = checkReturn.meta.cloneNode(true);
 	li.id = "showYouTubeTags";
 	li.getElementsByTagName('h4')[0].innerHTML = " Tags ";
 	li.getElementsByTagName('li')[0].innerHTML = tags;
