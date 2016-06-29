@@ -3,7 +3,7 @@
 // @namespace   https://www.youtube.com/
 // @description Adds tags for the current video to the video description, as the website previously offered. Currently, tags are buried in the page code.
 // @include     *://www.youtube.com/*
-// @version     1.3
+// @version     1.4
 // ==/UserScript==
 
 console.log("Show YouTube Tags: Loaded.");
@@ -13,65 +13,61 @@ var information = {
 };
 
 function appendTags() {
-	if(information.unrelated && window.location.href.indexOf("&list=") > -1) doUnrelated();
-	var checkReturn = errorCheckTags();
-	if(typeof checkReturn === 'number') return;
-	var tags = checkReturn.keywords.replace(/,/g, ", ") || "-",
-		li = checkReturn.meta.cloneNode(true);
+	var data = errorCheckTags();
+	if(data.errState > 0) return;
+	var tags = data.keywords.replace(/,/g, ", ") || "-",
+		li = data.meta.cloneNode(true);
 	li.id = "showYouTubeTags";
 	li.getElementsByTagName('h4')[0].innerHTML = " Tags ";
 	li.getElementsByTagName('li')[0].innerHTML = tags;
-	checkReturn.container.appendChild(li);
-	tagLog("Tags added.");
+	data.container.appendChild(li);
+	tagLog({string: "Tags added.", type: 2, debug: false});
 }
+
 function errorCheckTags() {
-	var errorState = 0,
-		output = {};
+	var data = { errState: 0 };
 	if(location.pathname !== "/watch") {
 		tagLog({string: "Incorrect webpage: " + location.pathname, type: 2, debug: true});
-		errorState++;
+		data.errState++;
 	}
 	else {
 		if(isFrame()) {
 			tagLog({string: "Script running outside of scope: " + window.self, type: 2, debug: false});
-			errorState++;
+			data.errState++;
 		}
 		else {
 			if(document.getElementById('showYouTubeTags')) {
 				tagLog({string: "Avoiding adding taglist twice.", type: 1, debug: false});
-				errorState++;
+				data.errState++;
 			}
 			else {
-				output.keywords = confirmObject(["ytplayer", "config", "args", "keywords"]);
-				if(typeof output.keywords === 'boolean') {
+				data.keywords = confirmObject(["ytplayer", "config", "args", "keywords"]);
+				if(typeof data.keywords === 'boolean') {
 					tagLog({string: "Object locating failed.", type: 1, debug: true});
-					errorState++;
+					data.errState++;
 				}
 
-				output.container = document.getElementsByClassName('watch-extras-section')[0];
-				if(output.container == null) {
+				data.container = document.getElementsByClassName('watch-extras-section')[0];
+				if(data.container === null) {
 					tagLog({string: "Could not locate proper description area.", type: 1, debug: false});
-					errorState++;
+					data.errState++;
 				}
 				else {
-					output.meta = output.container.lastElementChild;
-					if(!output.meta.querySelector("h4") || !output.meta.querySelector("li")) {
+					data.meta = data.container.lastElementChild;
+					if(data.meta.querySelector("h4") === null || data.meta.querySelector("li") === null) {
 						tagLog({string: "Description area format changed.", type: 1, debug: false});
-						errorState++;
+						data.errState++;
 					}
 				}
 			}
 		}
 	}
 
-	if(errorState > 0) {
-		tagLog({string: errorState + " errors.", type: 2, debug: true});
-		return errorState;
-	}
-	else {
+	if(data.errState > 0)
+		tagLog({string: data.errState + " errors.", type: 2, debug: true});
+	else
 		tagLog({string: "Sending object list.", type: 2, debug: true});
-		return output;
-	}
+	return data;
 }
 
 function confirmObject(array) {
