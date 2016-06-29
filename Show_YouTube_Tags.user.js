@@ -2,13 +2,14 @@
 // @name        Show Youtube Tags
 // @namespace   https://www.youtube.com/
 // @description Adds tags for the current video to the video description, as the website previously offered. Currently, tags are buried in the page code.
-// @include     *://www.youtube.com/*
+// @match       *://*.youtube.com/*
+// @noframes
 // @version     1.4
 // ==/UserScript==
 
 console.log("Show YouTube Tags: Loaded.");
 var information = {
-	debug: false,
+	debug: true,
 	echoTypes: ["", "Error - ", "Warning - "]
 };
 
@@ -21,7 +22,7 @@ function appendTags() {
 	li.getElementsByTagName('h4')[0].innerHTML = " Tags ";
 	li.getElementsByTagName('li')[0].innerHTML = tags;
 	data.container.appendChild(li);
-	tagLog({string: "Tags added.", type: 2, debug: false});
+	tagLog({string: "Tags added.", type: 0, debug: false});
 }
 
 function errorCheckTags() {
@@ -66,7 +67,7 @@ function errorCheckTags() {
 	if(data.errState > 0)
 		tagLog({string: data.errState + " errors.", type: 2, debug: true});
 	else
-		tagLog({string: "Sending object list.", type: 2, debug: true});
+		tagLog({string: "Sending object list.", type: 0, debug: true});
 	return data;
 }
 
@@ -103,11 +104,8 @@ function isFrame() {
 
 if(!isFrame()) {
 	window.addEventListener('readystatechange', appendTags, true);
-	//document.addEventListener('readystatechange', appendTags, true);
-	//window.addEventListener('DOMContentLoaded', appendTags, true);
 	window.addEventListener('spfdone', appendTags);
 }
 else {
 	tagLog({string: "Only applying listeners to top-level.", type: 2, debug: true});
-	console.log(window.self);
 }
