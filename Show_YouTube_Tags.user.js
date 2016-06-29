@@ -27,17 +27,17 @@ function appendTags() {
 function errorCheckTags() {
 	var data = { errState: 0 };
 	if(location.pathname !== "/watch") {
-		tagLog({string: "Incorrect webpage: " + location.pathname, type: 2, debug: true});
+		tagLog({string: "Non-video Page: " + location.pathname, type: 2, debug: true});
 		data.errState++;
 	}
 	else {
 		if(isFrame()) {
-			tagLog({string: "Script running outside of scope: " + window.self, type: 2, debug: false});
+			tagLog({string: "Script running outside of scope.", type: 2, debug: false});
 			data.errState++;
 		}
 		else {
 			if(document.getElementById('showYouTubeTags')) {
-				tagLog({string: "Avoiding adding taglist twice.", type: 1, debug: false});
+				tagLog({string: "Avoiding adding taglist twice.", type: 2, debug: false});
 				data.errState++;
 			}
 			else {
@@ -84,7 +84,7 @@ function confirmObject(array) {
 
 function tagLog(data) {
 	if(data.debug && !information.debug) return;
-	data.string = "Show YouTube Tags: " + information.echoTypes[data.type] + data.string;
+	data.string = "Show YouTube Tags" + (data.debug ? " [Debug]" : "") + ": " + information.echoTypes[data.type] + data.string;
 	switch(data.method || 1) {
 		case 2:
 			alert(data.string);
@@ -109,4 +109,5 @@ if(!isFrame()) {
 }
 else {
 	tagLog({string: "Only applying listeners to top-level.", type: 2, debug: true});
+	console.log(window.self);
 }
