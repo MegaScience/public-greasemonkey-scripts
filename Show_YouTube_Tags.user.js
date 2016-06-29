@@ -9,7 +9,7 @@
 
 console.log("Show YouTube Tags: Loaded.");
 var information = {
-	debug: true,
+	debug: false,
 	echoTypes: ["", "Error - ", "Warning - "]
 };
 
