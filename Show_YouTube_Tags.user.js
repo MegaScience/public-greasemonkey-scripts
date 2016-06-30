@@ -22,8 +22,8 @@ function appendTags() {
 	var tags = data.keywords.replace(/,/g, ", ") || "-",
 		li = data.meta.cloneNode(true);
 	li.id = "showYouTubeTags";
-	li.getElementsByTagName('h4')[0].innerHTML = " Tags ";
-	li.getElementsByTagName('li')[0].innerHTML = tags;
+	li.getElementsByTagName("h4")[0].innerHTML = " Tags ";
+	li.getElementsByTagName("li")[0].innerHTML = tags;
 	data.container.appendChild(li);
 	tagLog({string: "Tags added.", type: 0, debug: false});
 }
@@ -40,25 +40,25 @@ function errorCheckTags() {
 			data.errState++;
 		}
 		else {
-			if(document.getElementById('showYouTubeTags')) {
+			if(document.getElementById("showYouTubeTags")) {
 				tagLog({string: "Tags already added. Avoiding adding taglist twice.", type: 2, debug: false});
 				data.errState++;
 			}
 			else {
 				data.keywords = confirmObject(["ytplayer", "config", "args", "keywords"]);
-				if(typeof data.keywords === 'boolean') {
+				if(typeof data.keywords === "boolean") {
 					tagLog({string: "Object unable to be located.", type: 1, debug: true});
 					data.errState++;
 				}
 
-				data.container = document.getElementsByClassName('watch-extras-section')[0];
+				data.container = document.getElementsByClassName("watch-extras-section")[0];
 				if(data.container === null) {
 					tagLog({string: "Could not locate required description area.", type: 1, debug: false});
 					data.errState++;
 				}
 				else {
 					data.meta = data.container.lastElementChild;
-					if(data.meta.querySelector("h4") === null || data.meta.querySelector("li") === null) {
+					if(data.meta.getElementsByTagName("h4") === 0 || data.meta.getElementsByTagName("li") === 0) {
 						tagLog({string: "Description area format changed.", type: 1, debug: false});
 						data.errState++;
 					}
@@ -103,8 +103,8 @@ function isFrame() {
 }
 
 if(!isFrame()) {
-	window.addEventListener('readystatechange', appendTags, true);
-	window.addEventListener('spfdone', appendTags);
+	window.addEventListener("readystatechange", appendTags, true);
+	window.addEventListener("spfdone", appendTags);
 }
 else {
 	tagLog({string: "Only applying listeners to top-level scope.", type: 2, debug: true});
