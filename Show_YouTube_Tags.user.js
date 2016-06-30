@@ -15,7 +15,10 @@ var information = {
 
 function appendTags() {
 	var data = errorCheckTags();
-	if(data.errState > 0) return;
+	if(data.errState > 0) {
+		tagLog({string: data.errState + " errors. Tag addition canceled.", type: 2, debug: true});
+		return;
+	}
 	var tags = data.keywords.replace(/,/g, ", ") || "-",
 		li = data.meta.cloneNode(true);
 	li.id = "showYouTubeTags";
@@ -33,24 +36,24 @@ function errorCheckTags() {
 	}
 	else {
 		if(isFrame()) {
-			tagLog({string: "Script running outside of scope.", type: 2, debug: false});
+			tagLog({string: "Script running in incorrect scope.", type: 2, debug: false});
 			data.errState++;
 		}
 		else {
 			if(document.getElementById('showYouTubeTags')) {
-				tagLog({string: "Avoiding adding taglist twice.", type: 2, debug: false});
+				tagLog({string: "Tags already added. Avoiding adding taglist twice.", type: 2, debug: false});
 				data.errState++;
 			}
 			else {
 				data.keywords = confirmObject(["ytplayer", "config", "args", "keywords"]);
 				if(typeof data.keywords === 'boolean') {
-					tagLog({string: "Object locating failed.", type: 1, debug: true});
+					tagLog({string: "Object unable to be located.", type: 1, debug: true});
 					data.errState++;
 				}
 
 				data.container = document.getElementsByClassName('watch-extras-section')[0];
 				if(data.container === null) {
-					tagLog({string: "Could not locate proper description area.", type: 1, debug: false});
+					tagLog({string: "Could not locate required description area.", type: 1, debug: false});
 					data.errState++;
 				}
 				else {
@@ -64,10 +67,7 @@ function errorCheckTags() {
 		}
 	}
 
-	if(data.errState > 0)
-		tagLog({string: data.errState + " errors.", type: 2, debug: true});
-	else
-		tagLog({string: "Sending object list.", type: 0, debug: true});
+	tagLog({string: "Sending required data.", type: 0, debug: true});
 	return data;
 }
 
@@ -107,5 +107,5 @@ if(!isFrame()) {
 	window.addEventListener('spfdone', appendTags);
 }
 else {
-	tagLog({string: "Only applying listeners to top-level.", type: 2, debug: true});
+	tagLog({string: "Only applying listeners to top-level scope.", type: 2, debug: true});
 }
