@@ -18,7 +18,7 @@ var information = {
 		wrongPage: {string: "Non-video Page: ", type: 2, debug: true},
 		iFrame: {string: "Script running in incorrect scope.", type: 2, debug: false},
 		exists: {string: "Tags already added. Avoiding adding taglist twice.", type: 2, debug: false},
-		objMiss: {string: "Object unable to be located.", type: 1, debug: true},
+		//objMiss: {string: "Object unable to be located.", type: 1, debug: true},
 		descMiss: {string: "Could not locate required description area.", type: 1, debug: false},
 		descChan: {string: "Description area format changed.", type: 1, debug: false},
 		returning: {string: "Sending required data.", type: 0, debug: true},
@@ -46,23 +46,26 @@ function errorCheckTags() {
 	var data = { errState: false };
 	try {
 		if(location.pathname !== "/watch")
-			throw new Error(["wrongPage", location.pathname]);
+			throw ["wrongPage", location.pathname];
 		if(isFrame())
-			throw new Error("iFrame");
+			throw "iFrame";
 		if(document.getElementById("showYouTubeTags"))
-			throw new Error("exists");
+			throw "exists";
 		data.keywords = confirmObject(["ytplayer", "config", "args", "keywords"]);
 		if(typeof data.keywords === "boolean")
-			throw new Error("objMiss");
+			throw false;
 		data.container = document.getElementsByClassName("watch-extras-section")[0];
 		if(data.container === null)
-			throw new Error("descMiss");
+			throw "descMiss";
 		data.meta = data.container.lastElementChild;
 		if(data.meta.getElementsByTagName("h4") === 0 || data.meta.getElementsByTagName("li") === 0)
-			throw new Error("descChan");
+			throw "descChan";
 	}
 	catch(e) {
-		tagLog(e.message);
+		if(Array.isArray(e))
+			tagLog(e[0], e[1]);
+		else if(e !== false)
+			tagLog(e);
 		data.errState = true;
 	}
 	finally {
@@ -84,15 +87,9 @@ function confirmObject(array) {
 }
 
 function tagLog(message, append) {
-	var data = message;
-	if(typeof message === "string") {
-		var split = message.split(",", 2);
-		data = information.messages[split[0]];
-		if(split.length > 1)
-			append = split[1];
-	}
+	var data = (typeof message === "string" ? information.messages[message] : message);
 	if(data.debug && !information.debug) return;
-	var string = "Show YouTube Tags" + (data.debug ? " [Debug]" : "") + ": " + information.echoTypes[data.type] + data.string + (append === undefined ? "" : append);
+	var string = "Show YouTube Tags" + (data.debug ? " [Debug]" : "") + ": " + information.echoTypes[data.type] + data.string + (typeof append === "undefined" ? "" : append);
 	switch(data.method || 1) {
 		case 2:
 			alert(string);
