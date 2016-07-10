@@ -5,7 +5,7 @@
 // @copyright  2014, Garzon - 2016, MegaScience
 // ==/UserScript==
 
-// Create to Garzon for the majority of this code: http://userscripts-mirror.org/scripts/show/410768
+// Credit to Garzon for the majority of this code: http://userscripts-mirror.org/scripts/show/410768
 
 function wrapper() {
 	if (typeof window.autoPlay !== 'function') window.autoPlay = function() {};
