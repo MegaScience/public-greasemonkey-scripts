@@ -12,6 +12,7 @@ function wrapper() {
 	if (typeof window.autoPlay !== 'function') window.autoPlay = function() {};
 
 	window.autoPlay.isAutoMode = false;
+	window.autoPlay.stepTimeout = false;
 
 	window.requestAnimationFrame(function() {
 		window.userManager = new GameManager(4, KeyboardInputManager, HTMLActuator, LocalStorageManager);
@@ -28,7 +29,7 @@ function wrapper() {
 			return input;
 		}
 		window.userManager.actuator.autoButton = createButton(function () {window.autoPlay.toggleAuto();}, "Auto Play/Pause", "float: right;");
-		window.userManager.actuator.stepButton = createButton(function () {window.autoPlay.step();}, "Step By Step", "float: left;");
+		window.userManager.actuator.stepButton = createButton(function () {window.autoPlay.clickStep();}, "Step By Step", "float: left;");
 	});
 
 	window.autoPlay.toggleAuto = function() {
@@ -36,6 +37,20 @@ function wrapper() {
 		window.userManager.actuator.autoButton.style.boxShadow = (window.autoPlay.isAutoMode ? "0 0 0 5pt #bbada0" : "");
 		if (window.autoPlay.isAutoMode)
 			window.autoPlay.solve();
+	};
+
+	window.autoPlay.clickStep = function() {
+		if(window.autoPlay.stepTimeout) {
+			window.clearTimeout(window.autoPlay.stepTimeout);
+			window.autoPlay.stepTimeout = false;
+		}
+		window.userManager.actuator.stepButton.style.boxShadow = "0 0 0 5pt #bbada0";
+		window.autoPlay.step();
+		window.autoPlay.stepTimeout = window.setTimeout("window.autoPlay.unClickStep()", 400);
+	};
+
+	window.autoPlay.unClickStep = function() {
+		window.userManager.actuator.stepButton.style.boxShadow = "";
 	};
 
 	window.autoPlay.emptyMap = function() {
