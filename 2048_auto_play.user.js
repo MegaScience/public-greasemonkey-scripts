@@ -1,8 +1,9 @@
 // ==UserScript==
-// @name       2048 auto play
-// @version    0.5
-// @match      *://gabrielecirulli.github.io/2048/
-// @copyright  2014, Garzon - 2016, MegaScience
+// @name        2048 auto play
+// @description Automation for playing 2048. Code calculates and executes optimal motions.
+// @version     0.6
+// @match       *://gabrielecirulli.github.io/2048/
+// @copyright   2014, Garzon - 2016, MegaScience
 // ==/UserScript==
 
 // Credit to Garzon for the majority of this code: http://userscripts-mirror.org/scripts/show/410768
@@ -24,13 +25,15 @@ function wrapper() {
 			input.setAttribute("style", style);
 
 			window.userManager.actuator.explainContainer.appendChild(input);
+			return input;
 		}
-		createButton(function () {window.autoPlay.toggleAuto();}, "Auto Play/Pause", "float: right;");
-		createButton(function () {window.autoPlay.step();}, "Step By Step", "float: left;");
+		window.userManager.actuator.autoButton = createButton(function () {window.autoPlay.toggleAuto();}, "Auto Play/Pause", "float: right;");
+		window.userManager.actuator.stepButton = createButton(function () {window.autoPlay.step();}, "Step By Step", "float: left;");
 	});
 
 	window.autoPlay.toggleAuto = function() {
 		window.autoPlay.isAutoMode = !window.autoPlay.isAutoMode;
+		window.userManager.actuator.autoButton.style.boxShadow = (window.autoPlay.isAutoMode ? "0 0 0 5pt #bbada0" : "");
 		if (window.autoPlay.isAutoMode)
 			window.autoPlay.solve();
 	};
