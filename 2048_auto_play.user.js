@@ -1,9 +1,10 @@
 // ==UserScript==
 // @name        2048 auto play
 // @description Automation for playing 2048. Code calculates and executes optimal motions.
-// @version     0.6
+// @version     0.7
 // @match       *://gabrielecirulli.github.io/2048/
 // @copyright   2014, Garzon - 2016, MegaScience
+// @grant       GM_addStyle
 // ==/UserScript==
 
 // Credit to Garzon for the majority of this code: http://userscripts-mirror.org/scripts/show/410768
@@ -18,23 +19,26 @@ function wrapper() {
 		window.userManager = new GameManager(4, KeyboardInputManager, HTMLActuator, LocalStorageManager);
 		window.userManager.actuator.explainContainer = document.querySelector(".game-explanation");
 
-		function createButton(func, value, style) {
-			var input = document.createElement("input");
+		function createButton(func, value, className) {
+			var span = document.createElement("span"),
+				input = document.createElement("input");
 			input.type = "button";
-			input.onclick = func;
 			input.value = value;
-			input.setAttribute("style", style);
+			input.onclick = func;
+			span.classList.add(className);
+			span.classList.add("pressEffect");
+			span.appendChild(input);
 
-			window.userManager.actuator.explainContainer.appendChild(input);
-			return input;
+			window.userManager.actuator.explainContainer.appendChild(span);
+			return span;
 		}
-		window.userManager.actuator.autoButton = createButton(function () {window.autoPlay.toggleAuto();}, "Auto Play/Pause", "float: right;");
-		window.userManager.actuator.stepButton = createButton(function () {window.autoPlay.clickStep();}, "Step By Step", "float: left;");
+		window.userManager.actuator.autoButton = createButton(function () {window.autoPlay.toggleAuto();}, "Auto Play/Pause", "autoButton");
+		window.userManager.actuator.stepButton = createButton(function () {window.autoPlay.clickStep();}, "Step By Step", "stepButton");
 	});
 
 	window.autoPlay.toggleAuto = function() {
 		window.autoPlay.isAutoMode = !window.autoPlay.isAutoMode;
-		window.userManager.actuator.autoButton.style.boxShadow = (window.autoPlay.isAutoMode ? "0 0 0 5pt #bbada0" : "");
+		window.userManager.actuator.autoButton.classList.toggle("on", window.autoPlay.isAutoMode);
 		if (window.autoPlay.isAutoMode)
 			window.autoPlay.solve();
 	};
@@ -44,13 +48,14 @@ function wrapper() {
 			window.clearTimeout(window.autoPlay.stepTimeout);
 			window.autoPlay.stepTimeout = false;
 		}
-		window.userManager.actuator.stepButton.style.boxShadow = "0 0 0 5pt #bbada0";
+		window.userManager.actuator.stepButton.classList.add("on");
 		window.autoPlay.step();
 		window.autoPlay.stepTimeout = window.setTimeout("window.autoPlay.unClickStep()", 400);
 	};
 
 	window.autoPlay.unClickStep = function() {
-		window.userManager.actuator.stepButton.style.boxShadow = "";
+		//window.userManager.actuator.stepButton.style.boxShadow = "";
+		window.userManager.actuator.stepButton.classList.remove("on");
 	};
 
 	window.autoPlay.emptyMap = function() {
@@ -289,3 +294,38 @@ function wrapper() {
 var script = document.createElement('script');
 script.appendChild(document.createTextNode('('+ wrapper +')();'));
 (document.body || document.head || document.documentElement).appendChild(script);
+
+GM_addStyle('.pressEffect\
+{\
+  position: relative;\
+  z-index: 1;\
+}\.pressEffect:focus\
+{\
+  outline: none;\
+}\
+.pressEffect::before, .pressEffect::after\
+{\
+  z-index: -1;\
+  border-radius: 3px;\
+  opacity: 0;\
+  position: absolute;\
+  content: "";\
+  top: 0;\
+  left: 0;\
+  width: 100%;\
+  height: 100%;\
+  -webkit-box-shadow: 0 0 0 4pt #bbada0;\
+  -moz-box-shadow: 0 0 0 4pt #bbada0;\
+  box-shadow: 0 0 0 4pt #bbada0;\
+  transition: opacity 0.3s ease-in-out;\
+}\
+.pressEffect.on::before, .pressEffect.on::after\
+{\
+  opacity: 1;\
+}\
+.autoButton {\
+  float: right;\
+}\
+.stepButton {\
+  float: left;\
+}');
