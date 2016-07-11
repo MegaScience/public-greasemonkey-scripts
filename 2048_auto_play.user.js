@@ -7,7 +7,9 @@
 // @grant       GM_addStyle
 // ==/UserScript==
 
-// Credit to Garzon for the majority of this code: http://userscripts-mirror.org/scripts/show/410768
+// Credit to Garzon for the majority of this code: 
+// https://github.com/garzon/2048withAI/blob/gh-pages/js/myAI.js
+// http://userscripts-mirror.org/scripts/show/410768
 
 function wrapper() {
 	if (typeof window.autoPlay !== 'function') window.autoPlay = function() {};
@@ -54,7 +56,6 @@ function wrapper() {
 	};
 
 	window.autoPlay.unClickStep = function() {
-		//window.userManager.actuator.stepButton.style.boxShadow = "";
 		window.userManager.actuator.stepButton.classList.remove("on");
 	};
 
