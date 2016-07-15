@@ -94,16 +94,6 @@ var showYTT = {
 	tagLog: function (message, append) {
 		var data = (typeof message === "string" ? this.messages[message] : message);
 		if(data.debug && !this.debug) return false;
-		//var string = "Show YouTube Tags" + (data.debug ? " [Debug]" : "") + ": " + this.echoTypes[data.type] + data.string + (typeof append === "undefined" ? "" : append);
-		//switch(data.method || 1) {
-		//	case 2:
-		//		alert(string);
-		//		return true;
-		//	//case 1:
-		//	default:
-		//		console.log(string);
-		//		return true;
-		//}
 		console[this.echoType[data.type]](this.logString, (data.debug ? " [Debug]" : ""), data.string, (typeof append === "undefined" ? "" : append));
 		return true;
 	},
