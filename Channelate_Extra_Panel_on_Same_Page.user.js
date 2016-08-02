@@ -20,5 +20,5 @@ if (!!exPanel) {
 	$('#extracomic-1').load(exPanel.getElementsByTagName("a")[0].href + ' .extrapanelimage');
 }
 else {
-	console.log("This page (seemingly) does not have a comic/extra panel.");
+	console.log("Extra Panel Userscript: Extra panel not found. Might not exist.");
 }
