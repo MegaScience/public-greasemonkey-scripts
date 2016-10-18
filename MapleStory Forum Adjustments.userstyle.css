@@ -1,0 +1,59 @@
+@namespace url(http://www.w3.org/1999/xhtml);
+
+@-moz-document domain("forums.maplestory.nexon.net") {
+  /* Tooltip from: https://chrisbracco.com/a-simple-css-tooltip/ */
+  .Meta .DateCreated time[title], .Meta span.DateUpdated[title] {
+    position: relative;
+  }
+  .Meta .DateCreated time[title]::after,
+  .Meta .DateCreated time[title]::before,
+  .Meta span.DateUpdated[title]::after,
+  .Meta span.DateUpdated[title]::before {
+    position: absolute;
+    bottom: 150%;
+    left: 50%;
+    visibility: hidden;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+    filter: progid: DXImageTransform.Microsoft.Alpha(Opacity=0);
+    opacity: 0;
+    pointer-events: none;
+    white-space: pre-wrap;
+    font-weight: normal;
+  }
+  .Meta .DateCreated time[title]::before, .Meta span.DateUpdated[title]::before {
+    margin-bottom: 5px;
+    margin-left: -80px;
+    padding: 7px;
+    width: 160px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    background-color: #000;
+    background-color: hsla(0, 0%, 20%, 0.9);
+    color: #fff;
+    content: attr(title);
+    text-align: center;
+    font-size: 11px;
+    line-height: 1.2;
+  }
+  .Meta .DateCreated time[title]::after, .Meta span.DateUpdated[title]::after {
+    margin-left: -5px;
+    width: 0;
+    border-top: 5px solid #000;
+    border-top: 5px solid hsla(0, 0%, 20%, 0.9);
+    border-right: 5px solid transparent;
+    border-left: 5px solid transparent;
+    content: " ";
+    font-size: 0;
+    line-height: 0;
+  }
+  .Meta .DateCreated time[title]:hover::after,
+  .Meta .DateCreated time[title]:hover::before,
+  .Meta span.DateUpdated[title]:hover::after,
+  .Meta span.DateUpdated[title]:hover::before {
+    visibility: visible;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+    filter: progid: DXImageTransform.Microsoft.Alpha(Opacity=100);
+    opacity: 1;
+  }
+}
