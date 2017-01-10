@@ -1,6 +1,6 @@
 @echo off
 :: Based on: http://stackoverflow.com/a/17388270/5857393
-:: Use: getProperName "%toFolder%" "%frFolder%" "%fileName%" "%fileName%"
+:: Use: getProperName "%toFolder%" "%frFolder%" "%fileName%" "%fileType%"
 setlocal
 set toFolder=%~1
 set frFolder=%~2
