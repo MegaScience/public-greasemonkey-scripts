@@ -43,6 +43,7 @@ var showYTT = {
 		this.tagLog(this.logMess.problem);
 		this.tagLog(this.logMess.descMiss);
 		this.tagLog(this.logMess.returning);
+		this.confirmObject(["ytplayer", "config", "fart", "keywords"]);
 	},
 	errorCheck: function () {
 		var data = { errState: false };
@@ -100,7 +101,7 @@ var showYTT = {
 		return window.frameElement || window.top !== window.self;
 	}
 };
-showYTT.confirmObject(["ytplayer", "config", "fart", "keywords"]);
+
 showYTT.tagLog(showYTT.logMess.loaded);
 
 if(!showYTT.isFrame()) {
