@@ -3,8 +3,9 @@
 // @namespace   https://www.youtube.com/
 // @description Adds tags for the current video to the video description, as the website previously offered. Currently, tags are buried in the page code.
 // @match       *://*.youtube.com/*
+// @exclude     /^https?:\/\/(www.)?youtube\.com\/embed\/.*$/
 // @noframes
-// @version     3.0
+// @version     3.1
 // @grant       none
 // ==/UserScript==
 
@@ -12,10 +13,10 @@ var showYTT = {
 	debug: false,
 	echoType: ["log", "error", "warn"],
 	logString: "Show YouTube Tags%s: %s%s",
-	messages: {
+	logMess: {
 		loaded: {type: 0, debug: false, string: "Loaded."},
-		error: {type: 2, debug: true, string: "Tag addition will cancel due to error(s)."},
-		added: {type: 0, debug: false, string: "Tags added. "},
+		problem: {type: 2, debug: true, string: "Tag addition will cancel due to error(s)."},
+		added: {type: 0, debug: false, string: "Tags added."},
 		wrongPage: {type: 2, debug: true, string: "Non-video Page: "},
 		iFrame: {type: 2, debug: false, string: "Script running in incorrect scope."},
 		exists: {type: 2, debug: false, string: "Tags already added. Avoiding adding taglist twice."},
@@ -36,31 +37,31 @@ var showYTT = {
 		li.getElementsByTagName("h4")[0].innerHTML = " Tags ";
 		li.getElementsByTagName("li")[0].innerHTML = tags;
 		data.container.appendChild(li);
-		this.tagLog(this.messages.added, "(" + data.video_id + ")");
+		this.tagLog(this.logMess.added, " (" + data.video_id + ")");
 		if(!this.debug) return;
 		this.tagLog({type: 0, debug: false, string: "Testing..."});
-		this.tagLog(this.messages.error);
-		this.tagLog(this.messages.descMiss);
-		this.tagLog(this.messages.returning);
+		this.tagLog(this.logMess.problem);
+		this.tagLog(this.logMess.descMiss);
+		this.tagLog(this.logMess.returning);
 	},
 	errorCheck: function () {
 		var data = { errState: false };
 		try {
 			if(location.pathname !== "/watch")
-				throw [this.messages.wrongPage, location.pathname];
+				throw [this.logMess.wrongPage, location.pathname];
 			if(this.isFrame())
-				throw this.messages.iFrame;
+				throw this.logMess.iFrame;
 			if(document.getElementById("showYouTubeTags"))
-				throw this.messages.exists;
+				throw this.logMess.exists;
 			data.keywords = this.confirmObject(["ytplayer", "config", "args", "keywords"]);
 			if(typeof data.keywords === "boolean")
 				throw false;
 			data.container = document.getElementsByClassName("watch-extras-section")[0];
 			if(data.container === null)
-				throw this.messages.descMiss;
+				throw this.logMess.descMiss;
 			data.meta = data.container.lastElementChild;
 			if(data.meta.getElementsByTagName("h4").length === 0 || data.meta.getElementsByTagName("li").length === 0)
-				throw this.messages.descChan;
+				throw this.logMess.descChan;
 			data.video_id = this.confirmObject(["ytplayer", "config", "args", "video_id"]);
 			if(typeof data.video_id === "boolean")
 				data.video_id = "ID Not Found";
@@ -68,31 +69,29 @@ var showYTT = {
 		catch(e) {
 			data.errState = true;
 			if(typeof e.message !== "undefined")
-				this.tagLog(this.messages.unknownIssue, e.message);
+				this.tagLog(this.logMess.unknownIssue, e.message);
 			else if(Array.isArray(e))
 				this.tagLog(e[0], e[1]);
 			else if(e !== false)
 				this.tagLog(e);
-			this.tagLog(this.messages.error);
+			this.tagLog(this.logMess.problem);
 		}
 		finally {
-			this.tagLog(this.messages.returning);
+			this.tagLog(this.logMess.returning);
 			return data;
 		}
 	},
-	confirmObject: function (array) {
-		var tempObject = window;
-		for(var i = 0, len = array.length; i < len; i++) {
-			if(typeof tempObject[array[i]] === "undefined") {
-				this.tagLog(this.messages.objProp, array.slice(0, (i + 1)).join("."));
-				return false;
+	confirmObject: function (arr) {
+		return arr.reduce((last, current, index) => {
+			if(typeof last[current] === "undefined") {
+				this.tagLog(this.logMess.objProp, arr.slice(0, (index + 1)).join("."));
+				return "ShowYTTErr";
 			}
-			tempObject = tempObject[array[i]];
-		}
-		return tempObject;
+			return ( last === "ShowYTTErr" ? last : last[current] );
+		}, window);
 	},
 	tagLog: function (message, append) {
-		var data = (typeof message === "string" ? this.messages[message] : message);
+		var data = (typeof message === "string" ? this.logMess[message] : message);
 		if(data.debug && !this.debug) return false;
 		console[this.echoType[data.type]](this.logString, (data.debug ? " [Debug]" : ""), data.string, (typeof append === "undefined" ? "" : append));
 		return true;
@@ -101,13 +100,13 @@ var showYTT = {
 		return window.frameElement || window.top !== window.self;
 	}
 };
-
-showYTT.tagLog(showYTT.messages.loaded);
+showYTT.confirmObject(["ytplayer", "config", "fart", "keywords"]);
+showYTT.tagLog(showYTT.logMess.loaded);
 
 if(!showYTT.isFrame()) {
-	window.addEventListener("readystatechange", function () { showYTT.addTags(); }, true);
-	window.addEventListener("spfdone", function () { showYTT.addTags(); });
+	window.addEventListener("readystatechange", () => showYTT.addTags(), true);
+	window.addEventListener("spfdone", () => showYTT.addTags());
 }
 else {
-	showYTT.tagLog(showYTT.messages.iFrameOut);
+	showYTT.tagLog(showYTT.logMess.iFrameOut);
 }
