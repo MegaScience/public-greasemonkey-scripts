@@ -1,59 +1,54 @@
 // ==UserScript==
-// @name        Rubbable GIF Control
+// @name        Control Gif
 // @namespace   https://www.example.com/
 // @description When you open a .gif as a page, this will give you the option to make it click-drag controlable.
-// @include     /^https?:\/\/[^/]+\/[^?#]+\.gif([#?].*)?$/
-// @version     1
-// @require     https://cdn.rawgit.com/buzzfeed/libgif-js/master/libgif.js
-// @require     https://cdn.rawgit.com/buzzfeed/libgif-js/master/rubbable.js
+// @include     /^https?:\/\/[^/]+\/[^?#&]+\.gif([#?].*)?$/
+// @version     1.1
+// @require     https://rawgit.com/jbaicoianu/libgif-js/fa7965eb157b3e2075cee303cc106e0b058e4a03/libgif.js
+// @require     https://rawgit.com/buzzfeed/libgif-js/master/rubbable.js
 // @run-at      document-idle
-// @grant       none
+// @noframes
+// @grant       GM_addStyle
 // ==/UserScript==
 
 // Library: https://github.com/buzzfeed/libgif-js
 // Example: https://rawgit.com/buzzfeed/libgif-js/master/example.html
 
-var gifControl = {
-	initiate: function () {
+const gifControl = {
+	init: function () {
 		if(!confirm("GIF Detected. Control it?"))
 			return;
 
 		try {
-			var origIMG = document.getElementsByTagName("img")[0],
-				style = window.getComputedStyle(origIMG, null),
-				background = style.getPropertyValue("background"),
-				color = style.getPropertyValue("color");
+			let origIMG = document.getElementsByTagName("img")[0];
+			let style = window.getComputedStyle(origIMG, null);
 			this.theNewGIF = new RubbableGif({
 				gif: origIMG
 			});
 			this.theNewGIF.load(function() {
 				console.log('GIF Finished Loading into the Canvas Stuff.');
 			});
-			this.style = this.applyIMGStyles(style, this.theNewGIF.get_canvas());
-		} catch (e) {
-		  alert(e.message);
+			this.applyIMGStyles(style, this.theNewGIF.get_canvas());
+		}
+		catch (e) {
+			alert(e.message);
 		}
 	},
-	applyIMGStyles: function (style, elem) {
+	applyIMGStyles: function (s, e) {
+		let c = s => s.replace(/-([a-z])/gi, (m, p1) => p1.toUpperCase());
 		// Adapted from: http://stackoverflow.com/questions/22907735/get-the-computed-style-and-omit-defaults
-		var dummy = document.createElement('element-' + (new Date().getTime()));
-		document.body.appendChild(dummy);
-		var defStyle = getComputedStyle(dummy, null),
-			styleApp = [],
-			styleOut = {};
-		for(var i = 0, len = style.length, key, value; i < len; i++) {
-			key = style[i], value = style.getPropertyValue(key);
-			if(defStyle.getPropertyValue(defStyle[i]) !== value) {
-				styleApp.push(key + ": " + value + ";");
-				styleOut[key] = value;
-			}
+		let d = document.createElement('element-' + (new Date().getTime()));
+		document.body.appendChild(d);
+		let dS = window.getComputedStyle(d, null);
+		for (let k of s) {
+			let v = s.getPropertyValue(k);
+			if(dS.getPropertyValue(k) !== v)
+				e.style[c(k)] = v;
 		}
 
-		elem.setAttribute("style", styleApp.join(" "));
-		dummy.remove();
-		
-		return styleOut;
+		d.remove();
 	}
 };
 
-gifControl.initiate();
+if(document.querySelector('body > *:only-child > img, body > img:only-child') !== null)
+	gifControl.init();
