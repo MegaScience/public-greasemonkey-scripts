@@ -4,8 +4,8 @@
 // @description When you open a .gif as a page, this will give you the option to make it click-drag controlable.
 // @include     /^https?:\/\/[^/]+\/[^?#&]+\.gif([#?].*)?$/
 // @version     1.1
-// @require     https://rawgit.com/jbaicoianu/libgif-js/fa7965eb157b3e2075cee303cc106e0b058e4a03/libgif.js
-// @require     https://rawgit.com/buzzfeed/libgif-js/master/rubbable.js
+// @require     https://cdn.rawgit.com/buzzfeed/libgif-js/master/libgif.js
+// @require     https://cdn.rawgit.com/buzzfeed/libgif-js/master/rubbable.js
 // @run-at      document-idle
 // @noframes
 // @grant       GM_addStyle
