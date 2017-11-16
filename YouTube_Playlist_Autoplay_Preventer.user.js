@@ -5,31 +5,52 @@
 // @exclude     /^https?:\/\/(www.)?youtube\.com\/embed\/.*$/
 // @version     0.6
 // @noframes
-// @run-at      document-end
+// @run-at      document-idle
 // ==/UserScript==
 
 // CREDIT: Yonezpt (Github) wrote most of the below code. I only made slight adjustments. Original code found here: https://github.com/YePpHa/YouTubeCenter/issues/1192#issuecomment-68611967
 // Notice: Occasionally you will still get moved to the next video. I assume this is because YouTube instates a limit on SPF page changes before doing a full page change to clear the cache. If you know where the code for that is, feel free to suggest an update to this.
 
-window.user_wants_autoplay = false;
-
-(function() {
+const primary = function() {
+	window.user_wants_autoplay = false;
 	function autoplayDetour(b) {
-		return function () {
-			var button = document.getElementsByClassName("toggle-loop") || document.getElementsByClassName("toggle-autoplay");
-			if(button.length && button[0])
-				window.user_wants_autoplay = button[0].classList.contains("yt-uix-button-toggled");
-			if((!window.user_wants_autoplay && (!arguments[1] || arguments[1].feature && arguments[1].feature !== 'autoplay')) || window.user_wants_autoplay) {
+		return function (x, y, z) {
+			let button = document.querySelector('.toggle-loop, .toggle-autoplay');
+			if(button !== null)
+				window.user_wants_autoplay = button.classList.contains('yt-uix-button-toggled');
+			if(window.user_wants_autoplay || (!window.user_wants_autoplay && (!y || y.feature && y.feature !== 'autoplay'))) {
 				b.apply(this, arguments);
 			}
+			else console.log('Prevent Autoplay: ' + JSON.stringify(arguments));
 		};
 	}
 
-	Object.keys(window._yt_www).some(function (b) {
-		if(typeof window._yt_www[b] === 'function' && window._yt_www[b].toString().indexOf('window.spf.navigate') !== -1) {
-			//console.log("It works!");
-			window._yt_www[b] = autoplayDetour(window._yt_www[b]);
-			return true;
-		}
-	});
-})();
+	let flag = false;
+	let prop = window._yt_www ? '_yt_www' : window._yt_player ? '_yt_player' : false;
+	if(prop !== false) {
+		flag = Object.keys(window[prop]).some(function (b) {
+			if(typeof window[prop][b] === 'function' && window[prop][b].toString().indexOf('window.spf.navigate') !== -1) {
+				console.log('Prevent Autoplay: Encapsulating SPF Navigation. (Function Arguments: ' + window[prop][b].length + ')');
+				window[prop][b] = autoplayDetour(window[prop][b]);
+				return true;
+			}
+		});
+	}
+	else console.log('Prevent Autoplay: YouTube script not found. Format changed.');
+	
+	if(!flag && typeof window.yt.player.exports.navigate !== 'undefined') {
+		window.yt.player.exports.navigate = autoplayDetour(window.yt.player.exports.navigate);
+		flag = true;
+	}
+	
+	if(!flag && typeof window.spf.navigate !== 'undefined') {
+		window.spf.navigate = autoplayDetour(window.spf.navigate);
+		flag = true;
+	}
+
+	if(!flag) alert('Prevent Autoplay: Could not locate SPF navigation in YouTube code.');
+};
+
+const script = document.createElement('script');
+script.appendChild(document.createTextNode('('+ primary +')();'));
+(document.body || document.head || document.documentElement).appendChild(script);
