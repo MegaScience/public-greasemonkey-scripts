@@ -2,7 +2,7 @@
 // @name        Channelate Extra Panel on Same Page
 // @namespace   channelate.com
 // @description Adds the Extra Panel for each comic back to the comic page.
-// @include     /^https?:\/\/(www\.)?channelate\.com\/((\d{4}\/\d{2}\/\d{2}|comic)\/[\w-]+\/?)?$/
+// @include     /^https?:\/\/(www\.)?channelate\.com\/(comic|(\d{4}\/\d{2}\/\d{2})\/[\w-]+\/?)?$/
 // @require     https://greasemonkey.github.io/gm4-polyfill/gm4-polyfill.js
 // @version     2.0
 // @grant       GM.addStyle
@@ -15,6 +15,17 @@ function getElementFromURL(u, s) {
     return d.querySelector(s)
   }).catch(e => console.warn('Extra Panel Userscript: Error occurred while retrieving panel.', e))
 }
+
+async function main() {
+  const bonusURL = document.querySelector('#extrapanelbutton a')?.href
+  if(!bonusURL) return console.log('Extra Panel Userscript: Button directing to Extra Panel not found.')
+  const bonusImage = await getElementFromURL(bonusURL, '.extrapanelimage') ?? document.createTextNode('Extra Panel Userscript: Extra Panel image not found.')
+  const container = document.querySelector('#comic img').parentNode
+  GM.addStyle('.extrapanelimage { opacity: 0.1 } .extrapanelimage:hover { opacity: 1 }');
+  container.appendChild(bonusImage)
+}
+
+main()
 
 /*function getElementFromURL(u, s) {
   return new Promise((resolve, reject) => {
@@ -31,14 +42,3 @@ function getElementFromURL(u, s) {
     xhr.send()
   })
 }*/
-
-async function main() {
-  const bonusURL = document.querySelector('#extrapanelbutton a')?.href
-  if(!bonusURL) return console.log('Extra Panel Userscript: Button directing to Extra Panel not found.')
-  const bonusImage = await getElementFromURL(bonusURL, '.extrapanelimage') ?? document.createTextNode('Extra Panel Userscript: Extra Panel image not found.')
-  const container = document.querySelector('#comic img').parentNode
-  GM.addStyle('.extrapanelimage { opacity: 0.1 } .extrapanelimage:hover { opacity: 1 }');
-  container.appendChild(bonusImage)
-}
-
-main()
