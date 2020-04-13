@@ -2,7 +2,7 @@
 // @name        Channelate Extra Panel on Same Page
 // @namespace   channelate.com
 // @description Adds the Extra Panel for each comic back to the comic page.
-// @include     /^https?:\/\/(www\.)?channelate\.com\/(comic|(\d{4}\/\d{2}\/\d{2})\/[\w-]+\/?)?$/
+// @include     /^https?:\/\/(?:www\.)?channelate\.com\/(?:(?:comic|\d{4}\/\d{2}\/\d{2})\/[\w-]+\/?)?$/
 // @require     https://greasemonkey.github.io/gm4-polyfill/gm4-polyfill.js
 // @version     2.0
 // @grant       GM.addStyle
