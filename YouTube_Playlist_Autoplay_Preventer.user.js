@@ -1,16 +1,37 @@
 // ==UserScript==
-// @name        YouTube Playlist Autoplay Preventer
+// @name        YouTube Prevent Playlist Autoplay
 // @description YouTube decided playlists should ALWAYS play the next video at the end of the current video, removing the choice from the user. As I wait until the end of the video to comment, this seemed idiotic, so this code should prevent that.
 // @include     /^https?:\/\/(www.)?youtube\.com\/.*$/
 // @exclude     /^https?:\/\/(www.)?youtube\.com\/embed\/.*$/
-// @version     0.6
+// @version     0.8
 // @noframes
-// @run-at      document-idle
 // ==/UserScript==
+
+const primary = function () {
+    // TODO: Make an in-page button to toggle the below variable.
+    let autoplayOn = false
+
+    // In the new layout, playlists cannot autoplay if this "canAutoAdvance_" variable is set to "false"
+    // Toggling it back manually is messy (it switches back for countless reasons)
+    // Luckily, it is set to "true" via a function whose sole purpose is to do this.
+    // Just replace that function and you control autoplay on playlists!
+    function main() {
+        const [manager] = document.getElementsByTagName('yt-playlist-manager')
+        if (manager) manager.onYtNavigateFinish_ = function () { this.canAutoAdvance_ = autoplayOn }
+        else console.log('Playlist autoplay is still enabled.')
+    }
+
+    window.addEventListener('yt-playlist-data-updated', main, { once: true })
+}
+
+const script = document.createElement('script');
+script.appendChild(document.createTextNode(`(${primary})()`));
+(document.body || document.head || document.documentElement).appendChild(script)
 
 // CREDIT: Yonezpt (Github) wrote most of the below code. I only made slight adjustments. Original code found here: https://github.com/YePpHa/YouTubeCenter/issues/1192#issuecomment-68611967
 // Notice: Occasionally you will still get moved to the next video. I assume this is because YouTube instates a limit on SPF page changes before doing a full page change to clear the cache. If you know where the code for that is, feel free to suggest an update to this.
-
+/*
+// @run-at      document-idle
 const primary = function() {
 	window.user_wants_autoplay = false;
 	function autoplayDetour(b) {
@@ -54,3 +75,4 @@ const primary = function() {
 const script = document.createElement('script');
 script.appendChild(document.createTextNode('('+ primary +')();'));
 (document.body || document.head || document.documentElement).appendChild(script);
+*/
