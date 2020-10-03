@@ -28,6 +28,8 @@ const script = document.createElement('script');
 script.appendChild(document.createTextNode(`(${primary})()`));
 (document.body || document.head || document.documentElement).appendChild(script)
 
+// Below this point is the old code for the previous YouTube layout. It is no longer relevant since Youtube began aggressively preventing access to it.
+
 // CREDIT: Yonezpt (Github) wrote most of the below code. I only made slight adjustments. Original code found here: https://github.com/YePpHa/YouTubeCenter/issues/1192#issuecomment-68611967
 // Notice: Occasionally you will still get moved to the next video. I assume this is because YouTube instates a limit on SPF page changes before doing a full page change to clear the cache. If you know where the code for that is, feel free to suggest an update to this.
 /*
