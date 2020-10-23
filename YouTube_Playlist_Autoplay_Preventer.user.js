@@ -3,7 +3,7 @@
 // @description YouTube decided playlists should ALWAYS play the next video at the end of the current video, removing the choice from the user. As I wait until the end of the video to comment, this seemed idiotic, so this code should prevent that.
 // @include     /^https?:\/\/(www.)?youtube\.com\/.*$/
 // @exclude     /^https?:\/\/(www.)?youtube\.com\/embed\/.*$/
-// @version     0.8
+// @version     0.9
 // @noframes
 // ==/UserScript==
 
@@ -11,17 +11,25 @@ const primary = function () {
     // TODO: Make an in-page button to toggle the below variable.
     let autoplayOn = false
 
-    // In the new layout, playlists cannot autoplay if this "canAutoAdvance_" variable is set to "false"
-    // Toggling it back manually is messy (it switches back for countless reasons)
-    // Luckily, it is set to "true" via a function whose sole purpose is to do this.
-    // Just replace that function and you control autoplay on playlists!
-    function main() {
+    function getManager() {
         const [manager] = document.getElementsByTagName('yt-playlist-manager')
-        if (manager) manager.onYtNavigateFinish_ = function () { this.canAutoAdvance_ = autoplayOn }
-        else console.log('Playlist autoplay is still enabled.')
+        return manager
     }
 
+    // In the new layout, playlists cannot autoplay if this "canAutoAdvance_" variable is set to "false"
+    // Toggling it back manually is messy (it switches back for countless reasons)
+    // Luckily, it is set to "true" via a function whose sole purpose is to do so.
+    // Just replace that function and you control autoplay on playlists!
+    function main() {
+        const manager = getManager()
+        if (manager && !manager.interceptedForAutoplay) {
+            manager.interceptedForAutoplay = true
+            manager.onYtNavigateFinish_ = function () { this.canAutoAdvance_ = autoplayOn }
+        }
+        else console.log(`Playlist autoplay is ${manager?.interceptedForAutoplay ? 'already encapsulated' : 'still enabled'}.`)
+    }
     window.addEventListener('yt-playlist-data-updated', main, { once: true })
+    window.addEventListener('yt-page-type-changed', main)
 }
 
 const script = document.createElement('script');
