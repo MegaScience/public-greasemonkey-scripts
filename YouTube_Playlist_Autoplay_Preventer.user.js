@@ -26,7 +26,7 @@ const primary = function () {
             manager.interceptedForAutoplay = true
             manager.onYtNavigateFinish_ = function () { this.canAutoAdvance_ = autoplayOn }
         }
-        else console.log(`Playlist autoplay is ${manager?.interceptedForAutoplay ? 'already encapsulated' : 'still enabled'}.`)
+        else console.log(`Playlist autoplay is ${manager?.interceptedForAutoplay ? 'already intercepted' : 'still enabled'}.`)
     }
     window.addEventListener('yt-playlist-data-updated', main, { once: true })
     window.addEventListener('yt-page-type-changed', main)
