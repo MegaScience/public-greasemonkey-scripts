@@ -3,17 +3,41 @@
 // @description YouTube decided playlists should ALWAYS play the next video at the end of the current video, removing the choice from the user. As I wait until the end of the video to comment, this seemed idiotic, so this code should prevent that.
 // @include     /^https?:\/\/(www.)?youtube\.com\/.*$/
 // @exclude     /^https?:\/\/(www.)?youtube\.com\/embed\/.*$/
-// @version     0.9
+// @version     0.9.1
 // @noframes
 // ==/UserScript==
 
 const primary = function () {
-    // TODO: Make an in-page button to toggle the below variable.
     let autoplayOn = false
+    let currentExpected = true
+    let button = null
+
+    function toggleAutoplay() {
+        autoplayOn = !autoplayOn
+        getManager().canAutoAdvance_ = !autoplayOn ? false : currentExpected
+        button.textContent = `Toggle Autoplay (${autoplayOn ? 'ON > OFF' : 'OFF > ON'})`
+    }
 
     function getManager() {
         const [manager] = document.getElementsByTagName('yt-playlist-manager')
         return manager
+    }
+
+    function addButton() {
+        if (document.body.querySelector('#autoplayButtonM')) return console.log(document.body.querySelector('#autoplayButtonM'))
+        const container = document.querySelector('#playlist-action-menu #top-level-buttons, body')
+        button = document.createElement('button')
+        button.id = 'autoplayButtonM'
+        button.textContent = `Toggle Autoplay (${autoplayOn ? 'ON > OFF' : 'OFF > ON'})`
+        button.style.padding = '8px'
+        button.style.marginLeft = '8px'
+        button.style.position = 'fixed'
+        button.style.bottom = '7px'
+        button.style.right = '7px'
+        button.style.color = 'black !important'
+        button.style.borderRadius = '3px'
+        button.addEventListener('click', toggleAutoplay)
+        container?.appendChild(button)
     }
 
     // In the new layout, playlists cannot autoplay if this "canAutoAdvance_" variable is set to "false"
@@ -21,13 +45,16 @@ const primary = function () {
     // Luckily, it is set to "true" via a function whose sole purpose is to do so.
     // Just replace that function and you control autoplay on playlists!
     function main() {
+        addButton()
         const manager = getManager()
         if (manager && !manager.interceptedForAutoplay) {
             manager.interceptedForAutoplay = true
-            manager.onYtNavigateFinish_ = function () { this.canAutoAdvance_ = autoplayOn }
+            manager.onYtNavigateStart_  = function () { this.canAutoAdvance_ = currentExpected = false }
+            manager.onYtNavigateFinish_ = function () { currentExpected = true; this.canAutoAdvance_ = autoplayOn ? currentExpected : false }
         }
-        else console.log(`Playlist autoplay is ${manager?.interceptedForAutoplay ? 'already intercepted' : 'still enabled'}.`)
+        else console.log(`Playlist autoplay is ${manager?.interceptedForAutoplay ? 'already encapsulated' : 'still enabled'}.`)
     }
+
     window.addEventListener('yt-playlist-data-updated', main, { once: true })
     window.addEventListener('yt-page-type-changed', main)
 }
